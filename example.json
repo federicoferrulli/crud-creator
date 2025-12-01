@@ -1,0 +1,13 @@
+{
+    "collections": [
+        {
+            "name": "example",
+            "fields": {
+                "id": { "type": "Int" },
+                "label": { "type": "String" },
+                "timestamp": { "type": "Date" }
+            },
+            "features": ["crud"]
+        }
+    ]
+}

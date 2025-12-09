@@ -1,6 +1,7 @@
 {
     "dependencies": {
-        "commander": "^14.0.2"
+        "commander": "^14.0.2",
+        "stream-json": "^1.9.1"
     },
     "bin": {
         "crud-app": "./bin/index.js"
@@ -9,7 +10,6 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
-    "devDependencies": {},
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

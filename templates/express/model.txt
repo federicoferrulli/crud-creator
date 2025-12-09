@@ -1,0 +1,9 @@
+class {ModelName}{
+    
+    constructor(){
+        
+    }
+
+}
+
+export default {ModelName};

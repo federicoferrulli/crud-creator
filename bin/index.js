@@ -1,24 +1,61 @@
-#!/usr/bin/env node
 import { program } from "commander";
-import { readFile, writeFile } from "fs/promises";
+import {
+    createReadStream,
+    existsSync,
+    lstatSync,
+    mkdirSync
+} from "fs";
+import Parser from "stream-json/Parser.js";
+import StreamArray from "stream-json/streamers/StreamArray.js";
+import Pick from "stream-json/filters/Pick.js";
 
 const directory = process.cwd();
-const fileName = process.argv.at(2);
+const argFile = process.argv.at(2);
 
-if (!fileName) {
+if (!argFile) {
     console.log("Insert an example file!");
-    process.exit();
+    process.exit(1);
 }
 
-let json = null;
+const fileName = argFile.endsWith('.json') ? argFile : `${argFile}.json`;
+const filePath = `${directory}/${fileName}`;
+
+if (!existsSync(filePath)) {
+    console.error(`File not found: ${filePath}`);
+    process.exit(1);
+}
+
 try {
-    let file = null;
-    file = await readFile(`${directory}/${fileName}.json`, "utf-8");
-    json = JSON.parse(file);
+    // Non voglio saturare la memoria con un file grande
+    const pipeline = createReadStream(filePath)
+        .pipe(Parser.parser())
+        .pipe(Pick.pick({ filter: 'collections' }))
+        .pipe(StreamArray.streamArray());
+
+    pipeline.on('data', ({ value }) => {
+        console.log(value)
+
+        if (!value.name) {
+            return;
+        }
+
+        const currFilePath = `${directory}/${value.name}`;
+
+        if (!existsSync(currFilePath) || !lstatSync(currFilePath).isDirectory()) {
+            mkdirSync(currFilePath);
+        }   
+
+    });
+
+    pipeline.on('end', () => {
+        console.log('All Created!');
+    });
+
+    pipeline.on('error', (e) => {
+        console.error("Error parsing JSON:", e.message);
+    });
+
 } catch (e) {
     console.error(e);
-    process.exit();
+    process.exit(1);
 }
-
-console.log(json);
-process.exit();
